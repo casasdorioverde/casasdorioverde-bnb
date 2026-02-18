@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking · Casas do Rio Verde</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['Cormorant Garamond','serif'], body: ['DM Sans','sans-serif'] },
+          colors: {
+            moss:  { DEFAULT:'#4a5e3a', light:'#6b7f58', dark:'#2e3a22', faint:'#f0f4ec' },
+            stone: { DEFAULT:'#9a8c7e', light:'#c4b8ab', pale:'#f2ede8' },
+            river: { DEFAULT:'#6b8fa1', light:'#9ab5c4' },
+            bark:  { DEFAULT:'#7a5c40' },
+            cream: { DEFAULT:'#faf7f2' },
+            dusk:  { DEFAULT:'#2b2d26' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#faf7f2;color:#2b2d26}
+
+    /* ── Calendar cell states ── */
+    .cal-day{
+      position:relative;
+      width:100%;aspect-ratio:1;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.78rem;cursor:pointer;
+      border-radius:6px;transition:all .15s;user-select:none;
+    }
+    .cal-day.empty{cursor:default}
+    .cal-day.past{color:#c4b8ab;cursor:not-allowed;text-decoration:line-through}
+    .cal-day.blocked{
+      background:repeating-linear-gradient(45deg,#f8e8e8,#f8e8e8 3px,#fdf2f2 3px,#fdf2f2 9px);
+      color:#b08080;cursor:not-allowed;
+    }
+    .cal-day.blocked::after{content:'';position:absolute;inset:0;border-radius:6px}
+    .cal-day.available{color:#2b2d26}
+    .cal-day.available:hover{background:#e8f0e0;color:#2e3a22;font-weight:500}
+    .cal-day.checkin-only{
+      background:linear-gradient(90deg, white 50%, #e8f0e0 50%);
+      color:#2b2d26;cursor:pointer;
+    }
+    .cal-day.checkout-only{
+      background:linear-gradient(90deg, #e8f0e0 50%, white 50%);
+      color:#2b2d26;cursor:pointer;
+    }
+    .cal-day.selected-start{background:#4a5e3a;color:white;border-radius:6px 0 0 6px;font-weight:500}
+    .cal-day.selected-end{background:#4a5e3a;color:white;border-radius:0 6px 6px 0;font-weight:500}
+    .cal-day.selected-mid{background:#c8d9b8;color:#2e3a22;border-radius:0}
+    .cal-day.selected-single{background:#4a5e3a;color:white;border-radius:6px;font-weight:500}
+    .cal-day.today::before{
+      content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
+      width:4px;height:4px;border-radius:50%;background:#4a5e3a;
+    }
+    .cal-day.today.selected-start::before,.cal-day.today.selected-end::before{background:white}
+
+    /* ── Cabin card ── */
+    .cabin-card{transition:box-shadow .2s,transform .2s}
+    .cabin-card:hover{box-shadow:0 8px 32px rgba(74,94,58,.12);transform:translateY(-1px)}
+    .cabin-card.active{box-shadow:0 0 0 2.5px #4a5e3a,0 8px 32px rgba(74,94,58,.15)}
+
+    /* ── Status badge ── */
+    .sync-dot{width:8px;height:8px;border-radius:50%;animation:pulse-sync 2s infinite}
+    .sync-dot.syncing{background:#f5c842}
+    .sync-dot.ok{background:#4caf50}
+    .sync-dot.error{background:#e05555;animation:none}
+    @keyframes pulse-sync{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+
+    /* ── Loading shimmer ── */
+    .shimmer{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0d8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── Tooltip ── */
+    [data-tip]{position:relative}
+    [data-tip]:hover::after{
+      content:attr(data-tip);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);
+      background:#2b2d26;color:#faf7f2;font-size:.65rem;padding:3px 8px;border-radius:4px;
+      white-space:nowrap;pointer-events:none;z-index:10
+    }
+
+    /* ── Form inputs ── */
+    .form-input{
+      width:100%;border:1.5px solid #d4c8be;border-radius:10px;
+      padding:10px 14px;font-size:.82rem;color:#2b2d26;
+      background:white;transition:border .2s;outline:none;font-family:'DM Sans',sans-serif
+    }
+    .form-input:focus{border-color:#4a5e3a}
+
+    /* ── Summary card ── */
+    .price-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:.82rem}
+    .price-row.total{font-weight:600;font-size:.9rem;border-top:1.5px solid #e4dbd4;padding-top:10px;margin-top:4px}
+
+    /* ── Progress steps ── */
+    .step{display:flex;align-items:center;gap:8px;font-size:.75rem;color:#9a8c7e;transition:color .3s}
+    .step.active{color:#4a5e3a;font-weight:500}
+    .step.done{color:#4a5e3a}
+    .step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;
+      display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+    .step.done .step-num{background:#4a5e3a;border-color:#4a5e3a;color:white}
+
+    /* ── Modal ── */
+    #confirm-modal{display:none}
+    #confirm-modal.show{display:flex}
+
+    /* ── Btn ── */
+    .btn-moss{background:#4a5e3a;color:white;border-radius:12px;padding:12px 24px;
+      font-size:.85rem;font-weight:500;cursor:pointer;transition:background .2s,transform .15s;border:none}
+    .btn-moss:hover{background:#2e3a22;transform:translateY(-1px)}
+    .btn-moss:disabled{background:#9a8c7e;cursor:not-allowed;transform:none}
+    .btn-outline{background:transparent;color:#4a5e3a;border:1.5px solid #4a5e3a;border-radius:12px;
+      padding:11px 24px;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .btn-outline:hover{background:#4a5e3a;color:white}
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ TOP BAR ══════════════ -->
+<header class="bg-white border-b border-stone-light/30 px-5 py-3.5 flex items-center justify-between sticky top-0 z-40">
+  <a href="index.html" class="flex items-center gap-3">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <circle cx="14" cy="14" r="13" stroke="#4a5e3a" stroke-width="1.5"/>
+      <path d="M7 18 Q14 8 21 18" stroke="#4a5e3a" stroke-width="1.5" fill="none"/>
+      <circle cx="14" cy="10" r="2" fill="#4a5e3a"/>
+    </svg>
+    <div>
+      <p class="font-display text-base font-semibold text-dusk leading-none">Casas do Rio Verde</p>
+      <p class="text-stone text-xs">Direct Booking</p>
+    </div>
+  </a>
+
+  <!-- Sync status -->
+  <div class="flex items-center gap-2 text-xs text-stone" id="sync-status">
+    <div class="sync-dot syncing" id="sync-dot"></div>
+    <span id="sync-label">Syncing with Airbnb…</span>
+  </div>
+</header>
+
+<!-- ══════════════ PROGRESS ══════════════ -->
+<div class="bg-white border-b border-stone-light/20 px-5 py-3">
+  <div class="max-w-5xl mx-auto flex items-center gap-4">
+    <div class="step active" id="step1"><div class="step-num">1</div> Choose chalet &amp; dates</div>
+    <div class="flex-1 h-px bg-stone-light/40"></div>
+    <div class="step" id="step2"><div class="step-num">2</div> Your details</div>
+    <div class="flex-1 h-px bg-stone-light/40"></div>
+    <div class="step" id="step3"><div class="step-num">3</div> Confirm</div>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="max-w-5xl mx-auto px-4 py-8">
+  <div class="grid lg:grid-cols-5 gap-7 items-start">
+
+    <!-- LEFT: Cottage + Calendar (3 cols) -->
+    <div class="lg:col-span-3 space-y-6">
+
+      <!-- ── Cottage selector ── -->
+      <div>
+        <h2 class="font-display text-2xl font-light text-dusk mb-4">Select your chalet</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+
+          <!-- Cottage 1 -->
+          <div class="cabin-card active bg-white rounded-2xl overflow-hidden border border-stone-light/40 cursor-pointer" id="cabin-1" onclick="selectCabin(1)">
+            <div class="h-36 relative" style="overflow:hidden">
+              <img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA0OTIzNTIzMjkwMTI0NTcwOA==/original/07d052f7-2035-4f44-9c59-d76e045f5e73.jpeg?im_w=720" alt="Casinha chalet" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.src='https://api.allorigins.win/raw?url='+encodeURIComponent(this.dataset.src)" data-src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA0OTIzNTIzMjkwMTI0NTcwOA==/original/07d052f7-2035-4f44-9c59-d76e045f5e73.jpeg?im_w=720" />
+              <div class="absolute inset-0 flex items-end p-3">
+                <span class="bg-black/40 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">2 guests · 35m²</span>
+              </div>
+              <!-- Selected indicator -->
+              <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow" id="cabin-1-check">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#4a5e3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="font-display text-lg font-semibold text-dusk">Casinha · Chalet 1</p>
+              <p class="text-stone text-xs mt-0.5">Casinha · Chalet 1 · Fireplace · Private Terrace</p>
+              <p class="text-moss font-semibold text-sm mt-2">€105 <span class="text-stone font-normal text-xs">/ night</span></p>
+            </div>
+          </div>
+
+          <!-- Cottage 2 -->
+          <div class="cabin-card bg-white rounded-2xl overflow-hidden border border-stone-light/40 cursor-pointer" id="cabin-2" onclick="selectCabin(2)">
+            <div class="h-36 relative" style="overflow:hidden">
+              <img src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA0OTIzNTIzMjkwMTI0NTcwOA==/original/6945b586-0014-456d-afd7-fb4102b52e67.jpeg?im_w=720" alt="Hot tub and garden" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null;this.src='https://api.allorigins.win/raw?url='+encodeURIComponent(this.dataset.src)" data-src="https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MTA0OTIzNTIzMjkwMTI0NTcwOA==/original/6945b586-0014-456d-afd7-fb4102b52e67.jpeg?im_w=720" />
+              <div class="absolute inset-0 flex items-end p-3">
+                <span class="bg-black/40 text-white text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">2 guests · 40m²</span>
+              </div>
+              <div class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/30 flex items-center justify-center shadow hidden" id="cabin-2-check">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#4a5e3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="font-display text-lg font-semibold text-dusk">Ninho · Chalet 2</p>
+              <p class="text-stone text-xs mt-0.5">Ninho · Chalet 2 · Stream Views · Outdoor Dining</p>
+              <p class="text-river font-semibold text-sm mt-2">€115 <span class="text-stone font-normal text-xs">/ night</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Calendar ── -->
+      <div class="bg-white rounded-2xl border border-stone-light/30 overflow-hidden shadow-sm">
+        <!-- Calendar header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-stone-light/20">
+          <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-lg hover:bg-stone-pale flex items-center justify-center transition-colors" aria-label="Previous month">
+            <svg width="16" height="16" fill="none" stroke="#4a5e3a" stroke-width="2"><path d="M10 4l-4 4 4 4"/></svg>
+          </button>
+          <div class="text-center">
+            <p class="font-display text-lg font-semibold text-dusk" id="cal-title"></p>
+            <p class="text-stone text-xs" id="cal-subtitle">Select check-in date</p>
+          </div>
+          <button onclick="changeMonth(1)" class="w-8 h-8 rounded-lg hover:bg-stone-pale flex items-center justify-center transition-colors" aria-label="Next month">
+            <svg width="16" height="16" fill="none" stroke="#4a5e3a" stroke-width="2"><path d="M6 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+
+        <!-- Day names -->
+        <div class="grid grid-cols-7 px-4 pt-3 pb-1">
+          <div class="text-center text-xs text-stone font-medium py-1">Mo</div>
+          <div class="text-center text-xs text-stone font-medium py-1">Tu</div>
+          <div class="text-center text-xs text-stone font-medium py-1">We</div>
+          <div class="text-center text-xs text-stone font-medium py-1">Th</div>
+          <div class="text-center text-xs text-stone font-medium py-1">Fr</div>
+          <div class="text-center text-xs text-stone font-medium py-1">Sa</div>
+          <div class="text-center text-xs text-stone font-medium py-1">Su</div>
+        </div>
+
+        <!-- Calendar grid -->
+        <div id="cal-grid" class="grid grid-cols-7 gap-0.5 px-4 pb-4"></div>
+
+        <!-- Legend -->
+        <div class="px-5 py-3 border-t border-stone-light/20 flex flex-wrap gap-4 text-xs text-stone">
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded bg-moss/80 inline-block"></span> Selected
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded inline-block" style="background:repeating-linear-gradient(45deg,#f8e8e8,#f8e8e8 2px,#fdf2f2 2px,#fdf2f2 6px)"></span> Booked (Airbnb)
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded bg-stone-pale border border-stone-light/40 inline-block"></span> Available
+          </span>
+          <span class="flex items-center gap-1.5 ml-auto text-stone/60" id="last-sync-label">Not synced yet</span>
+        </div>
+      </div>
+
+      <!-- ── Sync Config (collapsible) ── -->
+      <details class="bg-white rounded-2xl border border-stone-light/30 overflow-hidden shadow-sm group">
+        <summary class="flex items-center justify-between px-5 py-4 cursor-pointer list-none">
+          <div class="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#4a5e3a" stroke-width="1.5">
+              <path d="M2 8a6 6 0 0 1 6-6v2M14 8a6 6 0 0 1-6 6v-2M10 2l2 2-2 2M6 14l-2-2 2-2"/>
+            </svg>
+            <span class="text-sm font-medium text-dusk">iCal Sync Configuration</span>
+          </div>
+          <svg width="14" height="14" fill="none" stroke="#9a8c7e" stroke-width="2" class="transition-transform group-open:rotate-180"><path d="M3 5l5 5 5-5"/></svg>
+        </summary>
+        <div class="px-5 pb-5 border-t border-stone-light/20 pt-4 space-y-4">
+          <p class="text-stone text-xs leading-relaxed">
+            Paste the Airbnb iCal URLs for each cottage below. Find them in Airbnb → Manage Listing → Availability → Export Calendar.
+            The calendar auto-refreshes every 15 minutes.
+          </p>
+
+          <!-- Casinha iCal -->
+          <div>
+            <label class="text-xs font-medium text-dusk block mb-1.5">Casinha · Chalet 1 — Airbnb iCal URL</label>
+            <div class="flex gap-2">
+              <input type="url" id="ical-url-1" class="form-input flex-1"
+                placeholder="https://www.airbnb.com/calendar/ical/XXXXXXXXX.ics?s=..."
+                value="" />
+              <button onclick="syncCalendar(1)" class="btn-moss px-4 whitespace-nowrap text-xs">Sync Now</button>
+            </div>
+            <p class="text-stone/60 text-xs mt-1" id="sync-status-1">Not configured</p>
+          </div>
+
+          <!-- Ninho iCal -->
+          <div>
+            <label class="text-xs font-medium text-dusk block mb-1.5">Ninho · Chalet 2 — Airbnb iCal URL</label>
+            <div class="flex gap-2">
+              <input type="url" id="ical-url-2" class="form-input flex-1"
+                placeholder="https://www.airbnb.com/calendar/ical/XXXXXXXXX.ics?s=..."
+                value="" />
+              <button onclick="syncCalendar(2)" class="btn-moss px-4 whitespace-nowrap text-xs">Sync Now</button>
+            </div>
+            <p class="text-stone/60 text-xs mt-1" id="sync-status-2">Not configured</p>
+          </div>
+
+          <!-- Demo mode toggle -->
+          <div class="flex items-center justify-between bg-moss-faint rounded-xl p-3 mt-2">
+            <div>
+              <p class="text-xs font-medium text-dusk">Demo mode (pre-loaded sample data)</p>
+              <p class="text-stone text-xs">Shows realistic blocked dates so you can preview the UI</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer ml-3 flex-shrink-0">
+              <input type="checkbox" id="demo-toggle" class="sr-only peer" checked onchange="toggleDemo()">
+              <div class="w-10 h-5 bg-stone-light rounded-full peer peer-checked:bg-moss transition-colors"></div>
+              <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </label>
+          </div>
+
+          <!-- CORS proxy info -->
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+            <p class="font-medium mb-1">⚠️ Production deployment note</p>
+            <p>Browsers block direct iCal fetches due to CORS. Use a lightweight proxy. Options:</p>
+            <ul class="mt-1 space-y-0.5 list-disc list-inside text-amber-700">
+              <li><strong>Cloudflare Worker</strong> (free): ~10 lines of code, fetch + return iCal</li>
+              <li><strong>Netlify Function / Vercel Edge</strong>: deploy alongside the site</li>
+              <li><strong>allorigins.win proxy</strong>: works for demos, not for production</li>
+            </ul>
+            <p class="mt-1">See the <code class="bg-amber-100 px-1 rounded">README</code> section in the source for copy-paste proxy code.</p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- RIGHT: Summary + Form (2 cols) -->
+    <div class="lg:col-span-2 space-y-5 lg:sticky lg:top-20">
+
+      <!-- Booking summary card -->
+      <div class="bg-white rounded-2xl border border-stone-light/30 shadow-sm overflow-hidden" id="summary-card">
+        <div class="px-5 py-4 border-b border-stone-light/20">
+          <p class="font-display text-lg font-semibold text-dusk" id="summary-cabin">Casinha · Chalet 1</p>
+          <p class="text-stone text-xs mt-0.5">Cheleiros, Mafra · Portugal</p>
+        </div>
+
+        <div class="px-5 py-4 space-y-1" id="summary-body">
+          <!-- Pre-selection state -->
+          <div id="summary-empty" class="py-4 text-center text-stone text-sm">
+            <div class="text-3xl mb-2">📅</div>
+            <p>Select your dates on the calendar</p>
+            <p class="text-xs text-stone/60 mt-1">Minimum 2 nights</p>
+          </div>
+
+          <!-- Post-selection summary (hidden until dates chosen) -->
+          <div id="summary-filled" class="hidden space-y-0">
+            <div class="flex gap-3 mb-4">
+              <div class="flex-1 bg-stone-pale rounded-xl p-3">
+                <p class="text-stone text-xs">Check-in</p>
+                <p class="font-medium text-dusk text-sm mt-0.5" id="sum-checkin">—</p>
+              </div>
+              <div class="flex-1 bg-stone-pale rounded-xl p-3">
+                <p class="text-stone text-xs">Check-out</p>
+                <p class="font-medium text-dusk text-sm mt-0.5" id="sum-checkout">—</p>
+              </div>
+            </div>
+            <div id="price-breakdown"></div>
+          </div>
+        </div>
+
+        <!-- Guest form (hidden until dates selected) -->
+        <div id="guest-form" class="hidden px-5 pb-5 space-y-3 border-t border-stone-light/20 pt-4">
+          <p class="text-xs font-medium text-dusk mb-3">Your details</p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-xs text-stone block mb-1">First name</label>
+              <input type="text" id="f-firstname" class="form-input" placeholder="Maria" />
+            </div>
+            <div>
+              <label class="text-xs text-stone block mb-1">Last name</label>
+              <input type="text" id="f-lastname" class="form-input" placeholder="Silva" />
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-stone block mb-1">Email address</label>
+            <input type="email" id="f-email" class="form-input" placeholder="maria@email.com" />
+          </div>
+          <div>
+            <label class="text-xs text-stone block mb-1">Phone (WhatsApp preferred)</label>
+            <input type="tel" id="f-phone" class="form-input" placeholder="+351 9xx xxx xxx" />
+          </div>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-xs text-stone block mb-1">Guests</label>
+              <select id="f-guests" class="form-input">
+                <option value="1">1 guest</option>
+                <option value="2" selected>2 guests</option>
+                <option value="3">3 guests</option>
+                <option value="4">4 guests</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-stone block mb-1">Pets</label>
+              <select id="f-pets" class="form-input">
+                <option value="0">No pets</option>
+                <option value="1">1 pet</option>
+                <option value="2">2 pets</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-stone block mb-1">Special requests (optional)</label>
+            <textarea id="f-notes" rows="2" class="form-input resize-none" placeholder="Early check-in, allergies, anniversary…"></textarea>
+          </div>
+
+          <button class="btn-moss w-full mt-2" onclick="openConfirmModal()">
+            Request Booking &amp; Pay Deposit →
+          </button>
+          <p class="text-center text-xs text-stone/50">50% deposit secures your dates · 50% paid on arrival</p>
+        </div>
+      </div>
+
+      <!-- Why book direct pill -->
+      <div class="bg-moss-faint rounded-2xl p-4 text-xs space-y-2">
+        <p class="font-medium text-moss text-sm">💚 Why book direct?</p>
+        <div class="flex justify-between text-stone">
+          <span>Airbnb price (incl. fees)</span>
+          <span class="line-through">~€120–135/night</span>
+        </div>
+        <div class="flex justify-between text-moss font-medium">
+          <span>Direct price</span>
+          <span>€105–115/night</span>
+        </div>
+        <div class="border-t border-moss/20 pt-2 space-y-1 text-stone/70">
+          <p>💳 50% deposit secures your dates</p>
+          <p>🤝 50% paid in cash or MB Way on arrival</p>
+          <p>📅 Calendar live-synced with Airbnb</p>
+        </div>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="bg-white rounded-2xl border border-stone-light/30 p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-yellow-400 text-lg">★</span>
+          <div>
+            <p class="text-xs font-medium text-dusk">Airbnb Guest Favourite</p>
+            <p class="text-stone text-xs">5.0 · 100% recommended</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center text-xs text-stone">
+          <div class="bg-stone-pale rounded-lg py-2">🐾<br/>Pet<br/>Friendly</div>
+          <div class="bg-stone-pale rounded-lg py-2">♨️<br/>Hot<br/>Tub</div>
+          <div class="bg-stone-pale rounded-lg py-2">🌿<br/>Nature<br/>Valley</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════════ CONFIRM MODAL ══════════════ -->
+<div id="confirm-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4" onclick="closeModalOutside(event)">
+  <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden" id="modal-inner">
+    <div class="bg-moss px-6 py-5">
+      <p class="font-display text-2xl font-light text-white">Confirm &amp; pay deposit</p>
+      <p class="text-moss-light text-xs mt-0.5">Your dates are secured once the 50% deposit is received</p>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div id="modal-summary" class="bg-stone-pale rounded-2xl p-4 text-sm space-y-2"></div>
+
+      <!-- 50/50 split visual -->
+      <div id="modal-payment-split" class="rounded-2xl overflow-hidden border border-stone-light/40 text-sm"></div>
+
+      <!-- Bank details for deposit -->
+      <div class="bg-moss-faint border border-moss/20 rounded-xl p-4 text-xs space-y-2">
+        <p class="font-semibold text-moss text-sm">How to pay the deposit</p>
+        <p class="text-stone">After confirming, we'll send you our bank details by email within 2 hours. Your reservation is held for <strong>24 hours</strong> pending transfer.</p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-white rounded-lg px-3 py-2 flex items-center gap-2">
+            <span class="text-lg">🏦</span>
+            <div>
+              <p class="font-medium text-dusk text-xs">Bank Transfer</p>
+              <p class="text-stone/60" style="font-size:.65rem">IBAN sent by email</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg px-3 py-2 flex items-center gap-2">
+            <span class="text-lg">📱</span>
+            <div>
+              <p class="font-medium text-dusk text-xs">MB Way</p>
+              <p class="text-stone/60" style="font-size:.65rem">Portuguese mobile pay</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg px-3 py-2 flex items-center gap-2">
+            <span class="text-lg">🅿️</span>
+            <div>
+              <p class="font-medium text-dusk text-xs">PayPal</p>
+              <p class="text-stone/60" style="font-size:.65rem">Friends &amp; Family</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg px-3 py-2 flex items-center gap-2">
+            <span class="text-lg">💵</span>
+            <div>
+              <p class="font-medium text-dusk text-xs">Cash on arrival</p>
+              <p class="text-stone/60" style="font-size:.65rem">For the 2nd half only</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-2">
+        <input type="checkbox" id="agree-terms" class="mt-0.5 accent-moss" />
+        <label for="agree-terms" class="text-xs text-stone">I understand the <strong>50% deposit</strong> secures my dates, and I'll pay the remaining 50% on arrival. I agree to the <a href="#" class="text-moss underline">cancellation policy</a> — free cancellation up to 7 days before arrival.</label>
+      </div>
+
+      <div class="flex gap-3 pt-1">
+        <button class="btn-outline flex-1" onclick="closeModal()">← Edit</button>
+        <button class="btn-moss flex-1" id="submit-btn" onclick="submitBooking()">Confirm &amp; Request Deposit Details</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUCCESS SCREEN ══════════════ -->
+<div id="success-screen" class="hidden fixed inset-0 z-50 bg-cream flex items-center justify-center p-4">
+  <div class="text-center max-w-sm">
+    <div class="w-20 h-20 bg-moss rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg">
+      <svg width="36" height="36" fill="none" stroke="white" stroke-width="2.5"><path d="M8 18l8 8 16-14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 class="font-display text-3xl font-light text-dusk mb-3">Booking Confirmed!</h2>
+    <p class="text-stone text-sm leading-relaxed mb-2" id="success-msg"></p>
+    <p class="text-stone/60 text-xs mb-6">We'll reply within 2 hours with your payment details for the 50% deposit.</p>
+    <div class="bg-white rounded-2xl border border-stone-light/30 p-4 text-left text-sm mb-6" id="success-details"></div>
+    <a href="index.html" class="btn-moss inline-block px-8">← Back to Property</a>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   ICAL SYNC ENGINE
+   ═══════════════════════════════════════════════════════════════════
+
+   HOW TO DEPLOY WITH REAL ICAL SYNC:
+   ──────────────────────────────────
+   1. Get Airbnb iCal URLs:
+      Airbnb → Hosting → Manage Listing → Availability tab
+      → Export Calendar → copy the .ics URL
+      Do this for BOTH cottages.
+
+   2. Paste URLs in the "iCal Sync Configuration" panel above.
+
+   3. CORS Proxy (required for browser-side fetching):
+      Option A — Cloudflare Worker (FREE, recommended):
+      ─────────────────────────────────────────────────
+      Create a new Worker at dash.cloudflare.com with this code:
+
+      export default {
+        async fetch(request) {
+          const url = new URL(request.url);
+          const target = url.searchParams.get('url');
+          if (!target || !target.includes('airbnb.com')) {
+            return new Response('Forbidden', { status: 403 });
+          }
+          const resp = await fetch(target);
+          const text = await resp.text();
+          return new Response(text, {
+            headers: {
+              'Content-Type': 'text/calendar',
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'max-age=900',
+            }
+          });
+        }
+      }
+
+      Then set PROXY_BASE below to your worker URL:
+      e.g. "https://ical-proxy.yourname.workers.dev/?url="
+
+      Option B — Netlify Function (if hosting on Netlify):
+      ─────────────────────────────────────────────────────
+      Create /netlify/functions/ical-proxy.js:
+
+      const fetch = require('node-fetch');
+      exports.handler = async (event) => {
+        const url = event.queryStringParameters.url;
+        const response = await fetch(url);
+        const text = await response.text();
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'text/calendar', 'Access-Control-Allow-Origin': '*' },
+          body: text,
+        };
+      };
+
+      Set PROXY_BASE = "/.netlify/functions/ical-proxy?url="
+
+   4. The engine auto-refreshes every 15 minutes.
+      Blocked dates from Airbnb are shown with a stripe pattern.
+
+═══════════════════════════════════════════════════════════════════ */
+
+const PROXY_BASE = "/.netlify/functions/ical-proxy?url="; // Netlify Function (auto-deployed)
+// Alternative if Netlify Functions fail: "https://api.allorigins.win/raw?url="
+const AUTO_REFRESH_INTERVAL = 15 * 60 * 1000; // 15 min
+
+// ── State ──
+let state = {
+  cabin: 1,
+  year: new Date().getFullYear(),
+  month: new Date().getMonth(),
+  checkin: null,
+  checkout: null,
+  selecting: 'checkin', // 'checkin' | 'checkout'
+  blockedDates: { 1: new Set(), 2: new Set() },
+  demoMode: true,
+  prices: { 1: 105, 2: 115 },
+  cabinNames: { 1: 'Casinha · Chalet 1', 2: 'Ninho · Chalet 2' },
+};
+
+// ── Demo blocked dates (realistic sample data) ──
+function loadDemoData() {
+  const d = { 1: new Set(), 2: new Set() };
+  const now = new Date();
+
+  // Helper: block a range
+  function blockRange(cabin, year, month, start, end) {
+    for (let d2 = start; d2 <= end; d2++) {
+      d[cabin].add(ymd(year, month, d2));
+    }
+  }
+
+  const y = now.getFullYear(), m = now.getMonth();
+
+  // Casinha — several bookings spread across coming weeks
+  blockRange(1, y, m, now.getDate() + 2, now.getDate() + 5);
+  blockRange(1, y, m, now.getDate() + 9, now.getDate() + 14);
+  blockRange(1, y, (m + 1) % 12, 3, 8);
+  blockRange(1, y, (m + 1) % 12, 14, 20);
+  blockRange(1, y, (m + 2) % 12, 1, 6);
+
+  // Ninho — different pattern
+  blockRange(2, y, m, now.getDate() + 1, now.getDate() + 3);
+  blockRange(2, y, m, now.getDate() + 12, now.getDate() + 17);
+  blockRange(2, y, (m + 1) % 12, 6, 11);
+  blockRange(2, y, (m + 1) % 12, 22, 28);
+  blockRange(2, y, (m + 2) % 12, 9, 15);
+
+  state.blockedDates = d;
+  updateSyncStatus('ok', 'Demo data loaded');
+}
+
+function ymd(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+// ── iCal Parser ──
+function parseIcal(text) {
+  const blocked = new Set();
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  let inEvent = false;
+  let dtstart = null, dtend = null;
+
+  for (let line of lines) {
+    if (line === 'BEGIN:VEVENT') { inEvent = true; dtstart = null; dtend = null; continue; }
+    if (line === 'END:VEVENT') {
+      inEvent = false;
+      if (dtstart && dtend) {
+        let cur = new Date(dtstart);
+        const end = new Date(dtend);
+        while (cur < end) {
+          const y = cur.getFullYear(), m = cur.getMonth() + 1, d = cur.getDate();
+          blocked.add(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+          cur.setDate(cur.getDate() + 1);
+        }
+      }
+      continue;
+    }
+    if (!inEvent) continue;
+
+    // Handle DTSTART with or without time
+    const startMatch = line.match(/^DTSTART(?:;[^:]*)?:(\d{8})/);
+    if (startMatch) {
+      const raw = startMatch[1];
+      dtstart = `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;
+    }
+    const endMatch = line.match(/^DTEND(?:;[^:]*)?:(\d{8})/);
+    if (endMatch) {
+      const raw = endMatch[1];
+      dtend = `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;
+    }
+  }
+  return blocked;
+}
+
+// ── Fetch iCal ──
+async function syncCalendar(cabinNum) {
+  const urlInput = document.getElementById(`ical-url-${cabinNum}`);
+  const statusEl = document.getElementById(`sync-status-${cabinNum}`);
+  const url = urlInput ? urlInput.value.trim() : '';
+
+  if (!url) {
+    statusEl.textContent = '⚠️ No iCal URL set';
+    statusEl.className = 'text-amber-600 text-xs mt-1';
+    return false;
+  }
+
+  statusEl.textContent = '⟳ Fetching…';
+  statusEl.className = 'text-blue-500 text-xs mt-1';
+  updateSyncStatus('syncing', `Syncing Chalet ${cabinNum}…`);
+
+  try {
+    const proxyUrl = PROXY_BASE + encodeURIComponent(url);
+    const resp = await fetch(proxyUrl, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Invalid iCal data');
+
+    state.blockedDates[cabinNum] = parseIcal(text);
+    const count = state.blockedDates[cabinNum].size;
+    statusEl.textContent = `✓ Synced — ${count} blocked date${count !== 1 ? 's' : ''} · ${new Date().toLocaleTimeString()}`;
+    statusEl.className = 'text-moss text-xs mt-1';
+
+    // Save URL
+    localStorage.setItem(`ical-url-${cabinNum}`, url);
+    localStorage.setItem(`ical-synced-${cabinNum}`, new Date().toISOString());
+
+    updateSyncStatus('ok', `Last sync: ${new Date().toLocaleTimeString()}`);
+    renderCalendar();
+    return true;
+  } catch (err) {
+    statusEl.textContent = `✗ Error: ${err.message}`;
+    statusEl.className = 'text-red-500 text-xs mt-1';
+    updateSyncStatus('error', 'Sync failed');
+    console.error('iCal sync error:', err);
+    return false;
+  }
+}
+
+async function syncAll() {
+  updateSyncStatus('syncing', 'Syncing with Airbnb…');
+  const r1 = await syncCalendar(1);
+  const r2 = await syncCalendar(2);
+  if (r1 || r2) {
+    updateSyncStatus('ok', `Synced · ${new Date().toLocaleTimeString()}`);
+    document.getElementById('last-sync-label').textContent = `Synced ${new Date().toLocaleTimeString()}`;
+  }
+}
+
+function updateSyncStatus(state_, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = `sync-dot ${state_}`;
+  lbl.textContent = label;
+}
+
+function toggleDemo() {
+  state.demoMode = document.getElementById('demo-toggle').checked;
+  if (state.demoMode) {
+    loadDemoData();
+    renderCalendar();
+  } else {
+    state.blockedDates = { 1: new Set(), 2: new Set() };
+    renderCalendar();
+    updateSyncStatus('error', 'Not synced — enter iCal URLs');
+  }
+}
+
+// ── Cabin selection ──
+function selectCabin(num) {
+  state.cabin = num;
+  state.checkin = null;
+  state.checkout = null;
+  state.selecting = 'checkin';
+
+  [1, 2].forEach(n => {
+    const card = document.getElementById(`cabin-${n}`);
+    const check = document.getElementById(`cabin-${n}-check`);
+    if (n === num) {
+      card.classList.add('active');
+      check.classList.remove('hidden');
+    } else {
+      card.classList.remove('active');
+      check.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('summary-cabin').textContent = state.cabinNames[num];
+  resetSummary();
+  renderCalendar();
+}
+
+// ── Calendar rendering ──
+function renderCalendar() {
+  const { year, month, cabin } = state;
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-title').textContent = `${months[month]} ${year}`;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = ymd(today.getFullYear(), today.getMonth(), today.getDate());
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  // Offset for Monday-first grid
+  const offset = (firstDay + 6) % 7;
+
+  // Empty cells
+  for (let i = 0; i < offset; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-day empty';
+    grid.appendChild(cell);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = ymd(year, month, d);
+    const date = new Date(year, month, d);
+    const cell = document.createElement('div');
+    cell.textContent = d;
+
+    let cls = 'cal-day ';
+
+    if (date < today) {
+      cls += 'past';
+    } else if (state.blockedDates[cabin].has(dateStr)) {
+      cls += 'blocked';
+      cell.setAttribute('data-tip', 'Booked on Airbnb');
+    } else if (dateStr === state.checkin && dateStr === state.checkout) {
+      cls += 'selected-single';
+    } else if (dateStr === state.checkin) {
+      cls += state.checkout ? 'selected-start' : 'selected-single';
+    } else if (dateStr === state.checkout) {
+      cls += 'selected-end';
+    } else if (state.checkin && state.checkout && dateStr > state.checkin && dateStr < state.checkout) {
+      // Check if any day in range is blocked
+      cls += 'selected-mid';
+    } else {
+      cls += 'available';
+      if (dateStr === todayStr) cls += ' today';
+    }
+
+    cell.className = cls;
+
+    if (!cls.includes('past') && !cls.includes('blocked')) {
+      cell.addEventListener('click', () => handleDayClick(dateStr));
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function changeMonth(dir) {
+  state.month += dir;
+  if (state.month > 11) { state.month = 0; state.year++; }
+  if (state.month < 0)  { state.month = 11; state.year--; }
+  renderCalendar();
+}
+
+// ── Day click handler ──
+function handleDayClick(dateStr) {
+  if (state.selecting === 'checkin') {
+    state.checkin = dateStr;
+    state.checkout = null;
+    state.selecting = 'checkout';
+    document.getElementById('cal-subtitle').textContent = 'Now select check-out date';
+  } else {
+    if (dateStr <= state.checkin) {
+      // Clicked before or same as checkin → reset
+      state.checkin = dateStr;
+      state.checkout = null;
+      state.selecting = 'checkout';
+      document.getElementById('cal-subtitle').textContent = 'Now select check-out date';
+    } else {
+      // Validate no blocked dates in range
+      const rangeBlocked = isRangeBlocked(state.checkin, dateStr);
+      if (rangeBlocked) {
+        showRangeError();
+        return;
+      }
+      const nights = nightsBetween(state.checkin, dateStr);
+      if (nights < 2) {
+        document.getElementById('cal-subtitle').textContent = '⚠️ Minimum 2 nights';
+        return;
+      }
+      state.checkout = dateStr;
+      state.selecting = 'checkin';
+      document.getElementById('cal-subtitle').textContent = '✓ Dates selected — complete your booking';
+      updateSummary();
+    }
+  }
+  renderCalendar();
+}
+
+function isRangeBlocked(startStr, endStr) {
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+  const cur = new Date(start);
+  cur.setDate(cur.getDate() + 1); // Don't check checkout day itself
+  while (cur < end) {
+    const s = ymd(cur.getFullYear(), cur.getMonth(), cur.getDate());
+    if (state.blockedDates[state.cabin].has(s)) return true;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return false;
+}
+
+function showRangeError() {
+  const sub = document.getElementById('cal-subtitle');
+  sub.textContent = '✗ Range contains booked dates — pick another period';
+  sub.style.color = '#c0392b';
+  setTimeout(() => {
+    sub.textContent = 'Select check-in date';
+    sub.style.color = '';
+    state.checkin = null;
+    state.checkout = null;
+    state.selecting = 'checkin';
+    renderCalendar();
+  }, 2500);
+}
+
+function nightsBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function formatDate(str) {
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ── Summary update ──
+function updateSummary() {
+  if (!state.checkin || !state.checkout) { resetSummary(); return; }
+
+  const nights = nightsBetween(state.checkin, state.checkout);
+  const nightly = state.prices[state.cabin];
+  const subtotal = nights * nightly;
+  const cleaningFee = 30;
+  const total = subtotal + cleaningFee;
+
+  document.getElementById('summary-empty').classList.add('hidden');
+  document.getElementById('summary-filled').classList.remove('hidden');
+  document.getElementById('guest-form').classList.remove('hidden');
+
+  document.getElementById('sum-checkin').textContent = formatDate(state.checkin);
+  document.getElementById('sum-checkout').textContent = formatDate(state.checkout);
+
+  const deposit = Math.ceil(total / 2);
+  const onArrival = total - deposit;
+
+  document.getElementById('price-breakdown').innerHTML = `
+    <div class="space-y-0">
+      <div class="price-row"><span>€${nightly} × ${nights} night${nights>1?'s':''}</span><span>€${subtotal}</span></div>
+      <div class="price-row"><span>Cleaning fee</span><span>€${cleaningFee}</span></div>
+      <div class="price-row total"><span>Total</span><span class="text-moss">€${total}</span></div>
+    </div>
+    <div class="mt-3 rounded-xl overflow-hidden border border-stone-light/40 text-xs">
+      <div class="bg-moss/10 px-3 py-2 flex justify-between items-center">
+        <div>
+          <p class="font-semibold text-moss">50% deposit — due now</p>
+          <p class="text-stone/70 mt-0.5">Bank transfer · MB Way · PayPal</p>
+        </div>
+        <span class="font-bold text-moss text-base">€${deposit}</span>
+      </div>
+      <div class="bg-stone-pale/60 px-3 py-2 flex justify-between items-center border-t border-stone-light/30">
+        <div>
+          <p class="font-semibold text-dusk">50% on arrival</p>
+          <p class="text-stone/70 mt-0.5">Cash or MB Way at check-in</p>
+        </div>
+        <span class="font-bold text-dusk text-base">€${onArrival}</span>
+      </div>
+    </div>
+    <p class="text-xs text-stone/50 mt-2 text-center">Airbnb would charge ~€${Math.round(total * 1.15)} incl. fees</p>
+  `;
+
+  // Advance step indicator
+  setStep(2);
+}
+
+function resetSummary() {
+  document.getElementById('summary-empty').classList.remove('hidden');
+  document.getElementById('summary-filled').classList.add('hidden');
+  document.getElementById('guest-form').classList.add('hidden');
+  setStep(1);
+}
+
+function setStep(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById(`step${i}`);
+    if (i < n) { el.className = 'step done'; el.querySelector('.step-num').textContent = '✓'; }
+    else if (i === n) el.className = 'step active';
+    else el.className = 'step';
+  });
+}
+
+// ── Modal ──
+function openConfirmModal() {
+  const fn = document.getElementById('f-firstname').value.trim();
+  const ln = document.getElementById('f-lastname').value.trim();
+  const em = document.getElementById('f-email').value.trim();
+  if (!fn || !ln || !em) {
+    alert('Please fill in at least your name and email address.');
+    return;
+  }
+  if (!em.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  const nights = nightsBetween(state.checkin, state.checkout);
+  const nightly = state.prices[state.cabin];
+  const total = nights * nightly + 30;
+  const deposit = Math.ceil(total / 2);
+  const onArrival = total - deposit;
+
+  document.getElementById('modal-summary').innerHTML = `
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span class="text-stone">Chalet</span><span class="font-medium">${state.cabinNames[state.cabin]}</span></div>
+      <div class="flex justify-between"><span class="text-stone">Check-in</span><span class="font-medium">${formatDate(state.checkin)}</span></div>
+      <div class="flex justify-between"><span class="text-stone">Check-out</span><span class="font-medium">${formatDate(state.checkout)}</span></div>
+      <div class="flex justify-between"><span class="text-stone">Guests</span><span class="font-medium">${document.getElementById('f-guests').value}</span></div>
+      <div class="flex justify-between pt-2 border-t border-stone-light/40 font-semibold"><span>Total</span><span class="text-moss">€${total}</span></div>
+    </div>
+  `;
+
+  document.getElementById('modal-payment-split').innerHTML = `
+    <div class="flex">
+      <div class="flex-1 bg-moss text-white px-4 py-3 text-center">
+        <p class="text-xs opacity-80 mb-0.5">Pay now (deposit)</p>
+        <p class="font-bold text-xl">€${deposit}</p>
+        <p class="text-xs opacity-70 mt-0.5">Bank transfer / MB Way</p>
+      </div>
+      <div class="flex-1 bg-stone-pale text-dusk px-4 py-3 text-center border-l border-stone-light/40">
+        <p class="text-xs text-stone mb-0.5">Pay on arrival</p>
+        <p class="font-bold text-xl">€${onArrival}</p>
+        <p class="text-xs text-stone/60 mt-0.5">Cash or MB Way at check-in</p>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('confirm-modal').classList.add('show');
+  setStep(3);
+}
+
+function closeModal() {
+  document.getElementById('confirm-modal').classList.remove('show');
+  setStep(2);
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('confirm-modal')) closeModal();
+}
+
+// ── Submit ──
+function submitBooking() {
+  if (!document.getElementById('agree-terms').checked) {
+    alert('Please agree to the cancellation policy.');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const fn = document.getElementById('f-firstname').value.trim();
+  const ln = document.getElementById('f-lastname').value.trim();
+  const em = document.getElementById('f-email').value.trim();
+  const ph = document.getElementById('f-phone').value.trim();
+  const guests = document.getElementById('f-guests').value;
+  const pets = document.getElementById('f-pets').value;
+  const notes = document.getElementById('f-notes').value.trim();
+  const nights = nightsBetween(state.checkin, state.checkout);
+  const total = nights * state.prices[state.cabin] + 30;
+  const deposit = Math.ceil(total / 2);
+  const onArrival = total - deposit;
+
+  // ─────────────────────────────────────────────────────────────────
+  // PRODUCTION: Replace this mailto block with Formspree / EmailJS
+  // to avoid the guest needing to have email open.
+  // ─────────────────────────────────────────────────────────────────
+
+  const subject = `Booking Request: ${state.cabinNames[state.cabin]} · ${formatDate(state.checkin)}`;
+  const body = `
+New Direct Booking Request — Casas do Rio Verde
+════════════════════════════════════════════════
+
+RESERVATION
+───────────
+Chalet : ${state.cabinNames[state.cabin]}
+Check-in : ${formatDate(state.checkin)}
+Check-out: ${formatDate(state.checkout)}
+Nights   : ${nights}
+Guests   : ${guests}${parseInt(pets) > 0 ? `  |  Pets: ${pets}` : ''}
+
+PAYMENT PLAN (50 / 50 split)
+────────────────────────────
+Total       : €${total}
+  ↳ Deposit (due within 24h) : €${deposit}  ← please send bank transfer / MB Way
+  ↳ On arrival               : €${onArrival} ← cash or MB Way at check-in
+
+GUEST DETAILS
+─────────────
+Name  : ${fn} ${ln}
+Email : ${em}
+Phone : ${ph || '(not provided)'}
+Notes : ${notes || '(none)'}
+
+Submitted: ${new Date().toLocaleString()}
+════════════════════════════════════════════════
+Please reply with your IBAN / MB Way number to confirm the reservation.
+  `.trim();
+
+  setTimeout(() => {
+    closeModal();
+    showSuccess(fn, em, total, deposit, onArrival);
+    const mailtoLink = `mailto:casasdorioverde@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+  }, 800);
+}
+
+function showSuccess(name, email, total, deposit, onArrival) {
+  document.getElementById('success-screen').classList.remove('hidden');
+  document.getElementById('success-msg').textContent =
+    `Thank you, ${name}! We've received your booking request for ${state.cabinNames[state.cabin]}.`;
+  document.getElementById('success-details').innerHTML = `
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between"><span class="text-stone">Chalet</span><span>${state.cabinNames[state.cabin]}</span></div>
+      <div class="flex justify-between"><span class="text-stone">Check-in</span><span>${formatDate(state.checkin)}</span></div>
+      <div class="flex justify-between"><span class="text-stone">Check-out</span><span>${formatDate(state.checkout)}</span></div>
+      <div class="flex justify-between font-semibold border-t border-stone-light/40 pt-2 mt-2"><span>Total</span><span class="text-moss">€${total}</span></div>
+    </div>
+    <div class="mt-3 rounded-xl overflow-hidden border border-stone-light/40 text-xs">
+      <div class="bg-moss/10 px-3 py-2.5 flex justify-between items-center">
+        <div>
+          <p class="font-semibold text-moss">50% deposit — send within 24h</p>
+          <p class="text-stone/70">We'll email you our IBAN &amp; MB Way</p>
+        </div>
+        <span class="font-bold text-moss text-base">€${deposit}</span>
+      </div>
+      <div class="bg-stone-pale/60 px-3 py-2.5 flex justify-between items-center border-t border-stone-light/30">
+        <div>
+          <p class="font-semibold text-dusk">50% on arrival</p>
+          <p class="text-stone/70">Cash or MB Way at check-in</p>
+        </div>
+        <span class="font-bold text-dusk text-base">€${onArrival}</span>
+      </div>
+    </div>
+    <p class="text-xs text-stone/60 mt-3">We'll confirm within 2 hours to <strong>${email}</strong></p>
+  `;
+}
+
+// ── Load saved iCal URLs ──
+function loadSavedUrls() {
+  [1, 2].forEach(n => {
+    const saved = localStorage.getItem(`ical-url-${n}`);
+    if (saved) {
+      const el = document.getElementById(`ical-url-${n}`);
+      if (el) el.value = saved;
+      const synced = localStorage.getItem(`ical-synced-${n}`);
+      if (synced) {
+        const ago = Math.round((Date.now() - new Date(synced)) / 60000);
+        document.getElementById(`sync-status-${n}`).textContent = `Last synced ${ago} min ago`;
+      }
+    }
+  });
+}
+
+// ── Auto-refresh ──
+function startAutoRefresh() {
+  setInterval(async () => {
+    const has1 = document.getElementById('ical-url-1')?.value.trim();
+    const has2 = document.getElementById('ical-url-2')?.value.trim();
+    if (has1 || has2) await syncAll();
+  }, AUTO_REFRESH_INTERVAL);
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedUrls();
+
+  // Pre-select cabin from URL param (e.g. booking-engine.html?cabin=2)
+  const params = new URLSearchParams(window.location.search);
+  const cabinParam = parseInt(params.get('cabin'));
+  if (cabinParam === 2) selectCabin(2);
+
+  if (state.demoMode) loadDemoData();
+  renderCalendar();
+  startAutoRefresh();
+
+  // Try to sync if URLs are already saved
+  const url1 = localStorage.getItem('ical-url-1');
+  const url2 = localStorage.getItem('ical-url-2');
+  if (url1 || url2) {
+    setTimeout(syncAll, 500);
+  }
+});
+</script>
+
+<!--
+════════════════════════════════════════════════════════════════════
+  README — iCal Sync Setup Guide
+════════════════════════════════════════════════════════════════════
+
+  STEP 1: Get your Airbnb iCal URLs
+  ──────────────────────────────────
+  1. Log in to Airbnb
+  2. Go to Hosting → Listings → select your listing
+  3. Click "Availability" tab
+  4. Scroll to "Sync calendars" section
+  5. Click "Export calendar" → copy the .ics URL
+  6. Repeat for each cottage listing
+
+  STEP 2: Paste into the config panel
+  ─────────────────────────────────────
+  Open this page in a browser, expand the "iCal Sync Configuration"
+  section, paste each URL, click "Sync Now".
+
+  STEP 3: Set up the CORS proxy
+  ──────────────────────────────
+  (Required for production — browsers can't fetch external URLs directly)
+
+  ▸ EASIEST — Cloudflare Worker (completely free):
+    a) Go to dash.cloudflare.com → Workers & Pages → Create
+    b) Paste this exact code:
+
+    export default {
+      async fetch(request) {
+        const url = new URL(request.url);
+        const target = url.searchParams.get('url');
+        if (!target) return new Response('Missing url param', {status:400});
+        const resp = await fetch(target, {
+          headers: { 'User-Agent': 'Mozilla/5.0 CasasDioRioVerde/1.0' }
+        });
+        const body = await resp.text();
+        return new Response(body, {
+          headers: {
+            'Content-Type': 'text/calendar; charset=utf-8',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'max-age=900',
+          }
+        });
+      }
+    }
+
+    c) Deploy → copy your worker URL (e.g. https://ical.yourname.workers.dev)
+    d) In this file, change PROXY_BASE to:
+       "https://ical.yourname.workers.dev/?url="
+
+  STEP 4: Publish your direct export iCal (optional)
+  ────────────────────────────────────────────────────
+  To let Airbnb READ your direct bookings (two-way sync):
+  a) Generate an iCal feed from your booking records
+  b) Host it at a public URL (e.g. yoursite.com/casa1.ics)
+  c) In Airbnb → Calendar → Import another calendar → paste URL
+
+  STEP 5: Domain & hosting
+  ──────────────────────────
+  Host both index.html + booking-engine.html on:
+  - Netlify (free, custom domain support)
+  - GitHub Pages (free)
+  - Cloudflare Pages (free, global CDN)
+  Point casasdorioverde.pt to your hosting.
+
+════════════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
