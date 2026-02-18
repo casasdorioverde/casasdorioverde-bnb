@@ -1,0 +1,93 @@
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Booking | Cheleiros B&amp;amp;B&lt;/title&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;Book your cozy stay at Cheleiros B&amp;amp;B. Simple online booking form for rooms in Mafra, Portugal.&quot;&gt;
+  &lt;link rel=&quot;icon&quot; href=&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%23666'%3E🛏️%3C/text%3E%3C/svg%3E&quot;&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'serif': ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  &lt;/script&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;css/styles.css&quot;&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-gradient-to-br from-slate-50 to-amber-50 min-h-screen py-20&quot;&gt;
+  &lt;nav class=&quot;bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 px-6 py-4 md:px-12&quot;&gt;
+    &lt;div class=&quot;max-w-7xl mx-auto flex justify-between items-center&quot;&gt;
+      &lt;a href=&quot;index.html&quot; class=&quot;text-2xl font-serif font-bold text-amber-600&quot;&gt;Cheleiros B&amp;B&lt;/a&gt;
+      &lt;ul class=&quot;flex space-x-6 md:space-x-8 items-center&quot;&gt;
+        &lt;li&gt;&lt;a href=&quot;index.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.home&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;rooms.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.rooms&quot;&gt;Rooms&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;booking.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.booking&quot;&gt;Booking&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;gallery.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.gallery&quot;&gt;Gallery&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;contact.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.contact&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button id=&quot;lang-toggle&quot; class=&quot;px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 font-medium rounded-lg transition ml-4 md:ml-0&quot;&gt;PT&lt;/button&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/nav&gt;
+
+  &lt;div class=&quot;max-w-2xl mx-auto px-6 md:px-12 py-20&quot;&gt;
+    &lt;h1 class=&quot;text-5xl md:text-6xl font-serif font-bold text-center mb-4 text-gray-800&quot; data-i18n=&quot;booking.title&quot;&gt;Book Your Stay&lt;/h1&gt;
+    &lt;p class=&quot;text-xl text-center text-gray-600 mb-16&quot;&gt;Fill out the form below to check availability and make a reservation.&lt;/p&gt;
+
+    &lt;form id=&quot;booking-form&quot; class=&quot;bg-white rounded-3xl shadow-2xl p-10 md:p-12 space-y-6&quot;&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;name&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.name&quot;&gt;Name&lt;/label&gt;
+        &lt;input type=&quot;text&quot; id=&quot;name&quot; name=&quot;name&quot; required class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition&quot;&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;email&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.email&quot;&gt;Email&lt;/label&gt;
+        &lt;input type=&quot;email&quot; id=&quot;email&quot; name=&quot;email&quot; required class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;grid grid-cols-2 gap-6&quot;&gt;
+        &lt;div&gt;
+          &lt;label for=&quot;checkin&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.checkin&quot;&gt;Check-in&lt;/label&gt;
+          &lt;input type=&quot;date&quot; id=&quot;checkin&quot; name=&quot;checkin&quot; required class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition&quot;&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label for=&quot;checkout&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.checkout&quot;&gt;Check-out&lt;/label&gt;
+          &lt;input type=&quot;date&quot; id=&quot;checkout&quot; name=&quot;checkout&quot; required class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;guests&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.guests&quot;&gt;Number of Guests&lt;/label&gt;
+        &lt;select id=&quot;guests&quot; name=&quot;guests&quot; required class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition&quot;&gt;
+          &lt;option value=&quot;&quot;&gt;Select&lt;/option&gt;
+          &lt;option value=&quot;1&quot;&gt;1&lt;/option&gt;
+          &lt;option value=&quot;2&quot;&gt;2&lt;/option&gt;
+          &lt;option value=&quot;3&quot;&gt;3&lt;/option&gt;
+          &lt;option value=&quot;4&quot;&gt;4+&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;message&quot; class=&quot;block text-lg font-medium text-gray-700 mb-2&quot; data-i18n=&quot;booking.message&quot;&gt;Message (optional)&lt;/label&gt;
+        &lt;textarea id=&quot;message&quot; name=&quot;message&quot; rows=&quot;5&quot; class=&quot;w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-vertical&quot;&gt;&lt;/textarea&gt;
+      &lt;/div&gt;
+      &lt;button type=&quot;submit&quot; class=&quot;w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 px-6 rounded-xl text-xl shadow-lg hover:shadow-xl transition-all duration-300 shadow-cozy&quot; data-i18n=&quot;booking.submit&quot;&gt;Send Booking Request&lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;div class=&quot;text-center mt-12 p-8 bg-amber-50 rounded-2xl border-2 border-dashed border-amber-200&quot;&gt;
+      &lt;p class=&quot;text-lg text-gray-600 mb-2&quot;&gt;Note: Replace YOUR_FORM_ID_HERE in js/script.js with your Formspree ID for the form to work.&lt;/p&gt;
+      &lt;p class=&quot;text-sm text-gray-500&quot;&gt;&lt;a href=&quot;https://formspree.io&quot; target=&quot;_blank&quot; class=&quot;text-amber-600 hover:underline&quot;&gt;Get free Formspree account&lt;/a&gt;&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;footer class=&quot;bg-slate-900 text-white py-12 md:py-16 mt-32&quot;&gt;
+    &lt;div class=&quot;max-w-6xl mx-auto px-6 md:px-12 text-center&quot;&gt;
+      &lt;p class=&quot;text-lg mb-4&quot; data-i18n=&quot;footer.copyright&quot;&gt;&amp;copy; 2024 Cheleiros B&amp;amp;B. All rights reserved.&lt;/p&gt;
+      &lt;p&gt;Cheleiros, Mafra, Portugal&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/footer&gt;
+
+  &lt;script src=&quot;js/script.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;

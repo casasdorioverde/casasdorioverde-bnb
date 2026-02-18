@@ -1,0 +1,66 @@
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Gallery | Cheleiros B&amp;amp;B&lt;/title&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;Explore beautiful photos of Cheleiros B&amp;amp;B, rooms, surroundings in Mafra, Portugal.&quot;&gt;
+  &lt;link rel=&quot;icon&quot; href=&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%23666'%3E🛏️%3C/text%3E%3C/svg%3E&quot;&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'serif': ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  &lt;/script&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;css/styles.css&quot;&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-cozy-50&quot;&gt;
+  &lt;nav class=&quot;bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 px-6 py-4 md:px-12&quot;&gt;
+    &lt;div class=&quot;max-w-7xl mx-auto flex justify-between items-center&quot;&gt;
+      &lt;a href=&quot;index.html&quot; class=&quot;text-2xl font-serif font-bold text-amber-600&quot;&gt;Cheleiros B&amp;B&lt;/a&gt;
+      &lt;ul class=&quot;flex space-x-6 md:space-x-8 items-center&quot;&gt;
+        &lt;li&gt;&lt;a href=&quot;index.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.home&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;rooms.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.rooms&quot;&gt;Rooms&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;booking.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.booking&quot;&gt;Booking&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;gallery.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.gallery&quot;&gt;Gallery&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;contact.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.contact&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button id=&quot;lang-toggle&quot; class=&quot;px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 font-medium rounded-lg transition ml-4 md:ml-0&quot;&gt;PT&lt;/button&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/nav&gt;
+
+  &lt;section class=&quot;py-24 md:py-32 px-6 md:px-12&quot;&gt;
+    &lt;div class=&quot;max-w-7xl mx-auto&quot;&gt;
+      &lt;h1 class=&quot;text-5xl md:text-7xl font-serif font-bold text-center mb-4 md:mb-8 text-gray-800&quot; data-i18n=&quot;nav.gallery&quot;&gt;Gallery&lt;/h1&gt;
+      &lt;p class=&quot;text-xl md:text-2xl text-center text-gray-600 mb-20 max-w-3xl mx-auto&quot;&gt;Discover the charm of Cheleiros B&amp;amp;B through our photo collection.&lt;/p&gt;
+      
+      &lt;div class=&quot;columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x800/?countryside,portugal&quot; alt=&quot;Portuguese countryside view&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?bedroom,cozy&quot; alt=&quot;Cozy bedroom&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?breakfast,table&quot; alt=&quot;Homemade breakfast&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x600/?village,portugal&quot; alt=&quot;Cheleiros village&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?suite,bed&quot; alt=&quot;Deluxe suite&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?garden,flowers&quot; alt=&quot;Garden view&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?sunset,countryside&quot; alt=&quot;Sunset over fields&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?beach,portugal,ericeira&quot; alt=&quot;Nearby beach&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+        &lt;img src=&quot;https://source.unsplash.com/600x400/?family,room&quot; alt=&quot;Family room&quot; class=&quot;w-full rounded-2xl shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-500 cursor-pointer mb-6 break-inside-avoid&quot;&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;footer class=&quot;bg-slate-900 text-white py-12 md:py-16&quot;&gt;
+    &lt;div class=&quot;max-w-6xl mx-auto px-6 md:px-12 text-center&quot;&gt;
+      &lt;p class=&quot;text-lg mb-4&quot; data-i18n=&quot;footer.copyright&quot;&gt;&amp;copy; 2024 Cheleiros B&amp;amp;B. All rights reserved.&lt;/p&gt;
+      &lt;p&gt;Cheleiros, Mafra, Portugal&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/footer&gt;
+
+  &lt;script src=&quot;js/script.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;

@@ -1,0 +1,104 @@
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Cheleiros B&amp;B | Cozy Bed &amp;amp; Breakfast in Mafra, Portugal&lt;/title&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;Discover cozy and inviting accommodations at Cheleiros B&amp;amp;B in serene Cheleiros, Mafra. Perfect getaway with stunning views and homemade breakfast.&quot;&gt;
+  &lt;meta name=&quot;keywords&quot; content=&quot;bed breakfast, cheleiros, mafra, portugal, cozy stay&quot;&gt;
+  &lt;meta property=&quot;og:title&quot; content=&quot;Cheleiros B&amp;amp;B&quot;&gt;
+  &lt;meta property=&quot;og:description&quot; content=&quot;Cozy stays in Mafra, Portugal&quot;&gt;
+  &lt;meta property=&quot;og:image&quot; content=&quot;https://source.unsplash.com/1200x630/?portugal,village&quot;&gt;
+  &lt;meta property=&quot;og:url&quot; content=&quot;./index.html&quot;&gt;
+  &lt;link rel=&quot;icon&quot; href=&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%23666'%3E🛏️%3C/text%3E%3C/svg%3E&quot;&gt;
+  &lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'serif': ['Playfair Display', 'serif'],
+          },
+          colors: {
+            cozy: {
+              50: '#fdf8f0',
+              500: '#f4a261',
+            }
+          }
+        }
+      }
+    }
+  &lt;/script&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;css/styles.css&quot;&gt;
+&lt;/head&gt;
+&lt;body class=&quot;bg-cozy-50&quot;&gt;
+  &lt;nav class=&quot;bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 px-6 py-4 md:px-12&quot;&gt;
+    &lt;div class=&quot;max-w-7xl mx-auto flex justify-between items-center&quot;&gt;
+      &lt;a href=&quot;index.html&quot; class=&quot;text-2xl font-serif font-bold text-amber-600&quot;&gt;Cheleiros B&amp;B&lt;/a&gt;
+      &lt;ul class=&quot;flex space-x-6 md:space-x-8 items-center&quot;&gt;
+        &lt;li&gt;&lt;a href=&quot;index.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.home&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;rooms.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.rooms&quot;&gt;Rooms&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;booking.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.booking&quot;&gt;Booking&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;gallery.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.gallery&quot;&gt;Gallery&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;contact.html&quot; class=&quot;text-gray-700 hover:text-amber-600 font-medium transition&quot; data-i18n=&quot;nav.contact&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;button id=&quot;lang-toggle&quot; class=&quot;px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-800 font-medium rounded-lg transition ml-4 md:ml-0&quot;&gt;PT&lt;/button&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/nav&gt;
+
+  &lt;!-- Hero --&gt;
+  &lt;section class=&quot;min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center text-white text-center px-4 md:px-8 relative overflow-hidden&quot; style=&quot;background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://source.unsplash.com/1920x1080/?countryside,portugal,village');&quot;&gt;
+    &lt;div class=&quot;max-w-4xl mx-auto&quot;&gt;
+      &lt;h1 class=&quot;text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 md:mb-12 drop-shadow-2xl leading-tight&quot; data-i18n=&quot;hero.title&quot;&gt;Welcome to Cheleiros B&amp;amp;B&lt;/h1&gt;
+      &lt;p class=&quot;text-lg md:text-2xl lg:text-3xl mb-12 drop-shadow-xl font-light&quot; data-i18n=&quot;hero.subtitle&quot;&gt;Cozy and inviting stays in serene Cheleiros, Mafra, Portugal&lt;/p&gt;
+      &lt;a href=&quot;booking.html&quot; class=&quot;inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold py-4 px-8 md:py-5 md:px-12 rounded-xl text-lg md:text-xl shadow-2xl hover:shadow-3xl transition-all duration-300 shadow-cozy&quot; data-i18n=&quot;hero.cta&quot;&gt;Book Now&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;!-- About --&gt;
+  &lt;section id=&quot;about&quot; class=&quot;py-24 md:py-32 bg-white&quot;&gt;
+    &lt;div class=&quot;max-w-6xl mx-auto px-6 md:px-12&quot;&gt;
+      &lt;h2 class=&quot;text-4xl md:text-5xl font-serif text-center mb-16 md:mb-24 text-gray-800&quot; data-i18n=&quot;about.title&quot;&gt;About Us&lt;/h2&gt;
+      &lt;div class=&quot;grid md:grid-cols-2 gap-12 md:gap-24 items-center&quot;&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;text-xl md:text-2xl leading-relaxed text-gray-700 mb-8&quot; data-i18n=&quot;about.text&quot;&gt;Nestled in the picturesque village of Cheleiros, our Bed &amp;amp; Breakfast offers a peaceful retreat with comfortable rooms, delicious homemade breakfast, and breathtaking views of the Portuguese countryside. Perfect for couples, families, or solo travelers seeking tranquility.&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;relative&quot;&gt;
+          &lt;img src=&quot;https://source.unsplash.com/800x600/?bed,breakfast,cozy&quot; alt=&quot;About Cheleiros B&amp;amp;B&quot; class=&quot;w-full h-64 md:h-80 object-cover rounded-2xl shadow-2xl&quot;&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;!-- Testimonials --&gt;
+  &lt;section class=&quot;py-24 md:py-32 bg-gradient-to-br from-slate-50 to-amber-50&quot;&gt;
+    &lt;div class=&quot;max-w-6xl mx-auto px-6 md:px-12&quot;&gt;
+      &lt;h2 class=&quot;text-4xl md:text-5xl font-serif text-center mb-16 md:mb-24 text-gray-800&quot; data-i18n=&quot;testimonials.title&quot;&gt;Guest Testimonials&lt;/h2&gt;
+      &lt;div class=&quot;grid md:grid-cols-3 gap-8 md:gap-12&quot;&gt;
+        &lt;div class=&quot;testimonial-card p-8 md:p-10 max-w-sm mx-auto shadow-cozy hover:shadow-xl transition-all duration-300&quot;&gt;
+          &lt;blockquote class=&quot;text-2xl italic mb-6 text-gray-700 leading-relaxed&quot;&gt;&quot;A truly magical place. The hosts were wonderful and the breakfast divine!&quot;&lt;/blockquote&gt;
+          &lt;cite class=&quot;text-amber-600 font-semibold&quot;&gt;- Maria S.&lt;/cite&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;testimonial-card p-8 md:p-10 max-w-sm mx-auto shadow-cozy hover:shadow-xl transition-all duration-300&quot;&gt;
+          &lt;blockquote class=&quot;text-2xl italic mb-6 text-gray-700 leading-relaxed&quot;&gt;&quot;Cozy rooms with stunning views. Felt like home away from home.&quot;&lt;/blockquote&gt;
+          &lt;cite class=&quot;text-amber-600 font-semibold&quot;&gt;- John D.&lt;/cite&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;testimonial-card p-8 md:p-10 max-w-sm mx-auto shadow-cozy hover:shadow-xl transition-all duration-300&quot;&gt;
+          &lt;blockquote class=&quot;text-2xl italic mb-6 text-gray-700 leading-relaxed&quot;&gt;&quot;Perfect for a relaxing weekend. Highly recommend!&quot;&lt;/blockquote&gt;
+          &lt;cite class=&quot;text-amber-600 font-semibold&quot;&gt;- Ana P.&lt;/cite&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;!-- Footer --&gt;
+  &lt;footer class=&quot;bg-slate-900 text-white py-12 md:py-16&quot;&gt;
+    &lt;div class=&quot;max-w-6xl mx-auto px-6 md:px-12 text-center&quot;&gt;
+      &lt;p class=&quot;text-lg mb-4&quot; data-i18n=&quot;footer.copyright&quot;&gt;&amp;copy; 2024 Cheleiros B&amp;amp;B. All rights reserved.&lt;/p&gt;
+      &lt;p&gt;Cheleiros, Mafra, Portugal&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/footer&gt;
+
+  &lt;script src=&quot;js/script.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
